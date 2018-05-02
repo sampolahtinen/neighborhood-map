@@ -35,6 +35,17 @@ export class MapContainer extends Component {
         }
     }
 
+    fetchFourSquarePlaces = () => {
+        const clientId = "GWE2ERPO4BDMDPVYSZJIQMS5FPHJ4VNKS0R5XIBDWSPWSOM0"
+        const clientSecret = "EVSK2NXVQ0MQ3BRGURR1F3GB0IKRD4MCGED11PH0C1BOK42V"
+        const version = 20180502;
+        fetch(`https://api.foursquare.com/v2/venues/explore?ll=55.677271,12.573833&radius=1000&categoryId=4bf58dd8d48988d16d941735&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`)
+            .then( (response) => {
+                return response.json()
+            }).then((json)=>{console.log(json)})  
+        }
+        
+
     fetchPlaces = (mapProps, map) => {
         console.log("I am ready to fetch places!!")
         const {google} = mapProps
@@ -55,7 +66,7 @@ export class MapContainer extends Component {
         return (
         
         <Map 
-            onReady={this.fetchPlaces}
+            onReady={this.fetchFourSquarePlaces}
             google={this.props.google}
             style={{width: '80%', height: '100%', position: 'relative'}}
             styles={this.props.styles}
@@ -72,7 +83,7 @@ export class MapContainer extends Component {
                         key={place.place_id}
                         name={place.name}
                         /*icon={{url: 'insert url'}}*Changes original icon to something else*/
-                        photo={place.photos[0].getUrl({'maxWidth': 400, 'maxHeight': 400})}
+                        photo={place.photos[0].getUrl({'maxWidth': 250, 'maxHeight': 300})}
                         position={{ lat: place.geometry.location.lat(), lng: place.geometry.location.lng() }} />
                 )}
         
@@ -82,6 +93,9 @@ export class MapContainer extends Component {
                 <div>
                     <h1>{this.state.selectedPlace.name}</h1>
                     <img alt='place zero' src={this.state.selectedPlace.photo}/>
+                    <div>
+                        <p>Some info here...</p>
+                    </div>
                 </div>
             </InfoWindow>
 
