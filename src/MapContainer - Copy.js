@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import { Map, InfoWindow, Marker, GoogleApiWrapper, SearchBox } from 'google-maps-react'
+import {Map, InfoWindow, Marker, GoogleApiWrapper, SearchBox} from 'google-maps-react'
 import PropTypes from 'prop-types'
 import './App.css'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-import benchLocations from './data/benchlocation.json'
+import benchLocation from './data/benchlocation.geojson'
 
 
 export class MapContainer extends Component {
@@ -34,8 +34,7 @@ export class MapContainer extends Component {
                 activeMarker: null
             })
         }
-    }      
-    
+    }
 
     fetchPlaces = (mapProps, map) => {
         console.log("I am ready to fetch places!!")
@@ -49,15 +48,13 @@ export class MapContainer extends Component {
             if (status === google.maps.places.PlacesServiceStatus.OK) {
                 console.log(results) //Results is an array containing objects
                 this.setState({places: results})
-                console.log("len " + benchLocations.features[0].geometry.coordinates[0][0])
-                console.log("lat " + benchLocations.features[0].geometry.coordinates[0][1])
             }
         });
     }
 
     render() {
         return (
-       
+        
         <Map 
             onReady={this.fetchPlaces}
             google={this.props.google}
@@ -70,21 +67,16 @@ export class MapContainer extends Component {
             zoom={15}
             onClick={this.onMapClicked}>
 
-                    {this.state.places.map((place) =>
-                        <Marker
-                            onClick={this.onMarkerClick}
-                            key={place.place_id}
-                            name={place.name}
-                            /*icon={{url: 'insert url'}}*Changes original icon to something else*/
-                            photo={place.photos[0].getUrl({'maxWidth': 400, 'maxHeight': 400})}
-                            position={{ lat: place.geometry.location.lat(), lng: place.geometry.location.lng() }} />
-                    )}
-                    
-                    {benchLocations.features.map((location)=> 
-                        <Marker
-                            position={{ lat: location.geometry.coordinates[0][1], lng: location.geometry.coordinates[0][0] }}
-                        />
-                    )}
+                {this.state.places.map((place) =>
+                    <Marker
+                        onClick={this.onMarkerClick}
+                        key={place.place_id}
+                        name={place.name}
+                        /*icon={{url: 'insert url'}}*Changes original icon to something else*/
+                        photo={place.photos[0].getUrl({'maxWidth': 400, 'maxHeight': 400})}
+                        position={{ lat: place.geometry.location.lat(), lng: place.geometry.location.lng() }} />
+                )}
+        
             <InfoWindow
                 marker={this.state.activeMarker}
                 visible={this.state.showingInfoWindow}>
