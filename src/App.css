@@ -17,3 +17,70 @@
   font-size: large;
 }
 
+.navigation {
+
+}
+.main-content {
+  display: flex;
+  flex-flow: row wrap;
+  min-height: 100%;
+}
+
+.map-container {
+  box-sizing: border-box;
+  height: 100vh;
+  flex-grow: 1;
+  order: 2;
+  flex-basis: 50vw;
+  position: sticky;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.search-field {
+  width: 30%;
+  background-color: #463f42;
+
+}
+
+.search-field input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 50px;
+  font-size: 20px;
+  padding-left: 15px;
+}
+.venue-list {
+  box-sizing: border-box;
+  height: 90vh;
+  overflow: scroll;
+}
+.venue-list ol {
+  text-align: left;
+  padding-left: 15px;
+  list-style: none;
+}
+.venue-list-item {
+  padding-top: 10px;
+}
+
+
+.venue-contents {
+  line-height: 0.8;
+}
+.venue-name {
+  text-align: left;
+}
+.venue-rating {
+  text-align: left;
+}
+.venue-info-wrapper {
+  text-align: left;
+}
+.venue-tips {
+  text-align: left;
+  list-style: none;
+  padding: 0;
+}
+
+
