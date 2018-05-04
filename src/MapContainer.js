@@ -18,12 +18,13 @@ export class MapContainer extends Component {
         selectedPlace: {},
         places: [],
         venueDetails: {},
-        photo: ''
+        photo: '',
+        filterQuery: 'bar'
     }
     
     onMarkerClick = (props, marker, e) => {
         const photoUrl = this.fetchPhoto(props.venueId)
-        const venueDetails = this.fetchDetails(props.venueId)
+        //const venueDetails = this.fetchDetails(props.venueId)
         this.setState({
             showingInfoWindow: true,
             activeMarker: marker,
@@ -47,10 +48,14 @@ export class MapContainer extends Component {
         const lat = 55.677271
         const len = 12.573833
 
-        fetch(`https://api.foursquare.com/v2/venues/explore?ll=${lat},${len}&radius=1000&categoryId=4bf58dd8d48988d16d941735&venuePhotos=1&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`)
+       if(!this.state.filterQuery) return
+
+        fetch(`https://api.foursquare.com/v2/venues/explore?ll=${lat},${len}&radius=1000&venuePhotos=1&query="${this.state.filterQuery}"&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`)
             .then( (response) => {
                 return response.json()
             }).then((json) =>{
+                console.log(json)
+                console.log("Query printing from fetc: " + this.state.filterQuery)
                 this.setState({
                     places: json.response.groups["0"].items
                 })
@@ -71,30 +76,21 @@ export class MapContainer extends Component {
                     this.setState({photo: imageUrl})
                 })
     }
-    fetchDetails = (venueId) => {
-        console.log("I am fetchDetails")
-        const clientId = "GWE2ERPO4BDMDPVYSZJIQMS5FPHJ4VNKS0R5XIBDWSPWSOM0"
-        const clientSecret = "EVSK2NXVQ0MQ3BRGURR1F3GB0IKRD4MCGED11PH0C1BOK42V"
-        const version = 20180502
-        const url = `https://api.foursquare.com/v2/venues/${venueId}?&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`
-
-        fetch(url)
-            .then(response => response.json())
-            .then(json => 
-                this.setState({venueDetails: json.response}))
-    }
 
     filterPlaces = (query) => {
-        console.log("Query is " +  query)
+       /* console.log("Query is " +  query)
         let match = new RegExp(query,'i')
         let filteredPlaces = this.state.places.filter( place => match.test(place.venue.name))
         this.setState({places: filteredPlaces})
-        console.log(filteredPlaces)
+        console.log(filteredPlaces)*/
+        console.log("Current query: " + query)
+        this.setState({filterQuery: query})
+        this.fetchFourSquarePlaces()
     }
 
     render() {
-    
         return (
+            
         <div className='main-content'>
             <div className="map-container">
                 <Map 
@@ -106,7 +102,7 @@ export class MapContainer extends Component {
                         lat: 55.677271,
                         lng:  12.573833
                     }}
-                    zoom={15}
+                    zoom={16}
                     onClick={this.onMapClicked}>
                         {this.state.places.map((place) =>
                             <Marker
@@ -117,15 +113,13 @@ export class MapContainer extends Component {
                                 position={{ lat: place.venue.location.lat, lng: place.venue.location.lng}} />
                         )
                     }
-                    <InfoWindow
-                        marker={this.state.activeMarker}
-                        visible={this.state.showingInfoWindow}>
+                    {this.state.showingInfoWindow && this.state.venueDetails && 
                         <VenueContents
                             name={this.state.selectedPlace.name}
                             photo={this.state.photo}
                             venueId={this.state.selectedPlace.venueId}
-                            />
-                    </InfoWindow>
+                        />
+                    } 
                 </Map>
             </div>
                 <SearchField
