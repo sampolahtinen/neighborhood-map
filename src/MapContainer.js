@@ -54,8 +54,7 @@ export class MapContainer extends Component {
             .then( (response) => {
                 return response.json()
             }).then((json) =>{
-                console.log(json)
-                console.log("Query printing from fetc: " + this.state.filterQuery)
+                //console.log("Query printing from fetc: " + this.state.filterQuery)
                 this.setState({
                     places: json.response.groups["0"].items
                 })
@@ -118,13 +117,16 @@ export class MapContainer extends Component {
                             name={this.state.selectedPlace.name}
                             photo={this.state.photo}
                             venueId={this.state.selectedPlace.venueId}
+                            
                         />
                     } 
                 </Map>
             </div>
                 <SearchField
                     places={this.state.places}
+                    clickHandler={this.onMarkerClick}
                     filterPlaces={this.filterPlaces}/>
+
             
         </div>
     );

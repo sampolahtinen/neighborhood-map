@@ -9,15 +9,11 @@ class VenueContents extends Component {
         name: PropTypes.string,
         photo: PropTypes.string,
         venueId: PropTypes.string,
-        //details: PropTypes.object.isRequired
     }
 
     state = {
-        venueDetails: {}
-    }
-
-    componentDidMount = () => {
-        this.fetchDetails(this.props.venueId)
+        venueDetails: {},
+        loading: true
     }
 
     fetchDetails = (venueId) => {
@@ -31,30 +27,43 @@ class VenueContents extends Component {
             .then(response => response.json())
             .then((json) => {
                 this.setState({ venueDetails: json.response })
-                console.log("Fetched venue details: " + this.state.venueDetails.venue.rating) //this proves that the details work.
-            })
+            }).then(()=> this.setState({loading: false}))
     }
 
+    componentDidMount = () => {
+        this.fetchDetails(this.props.venueId)
+    }
+
+    componentWillReceiveProps = (prevProps) => {
+        if(prevProps !== this.props) {
+            this.fetchDetails(this.props.venueId)
+        }
+    }
+    
     render() {
         const { name, photo, venueId } = this.props
         const { venueDetails } = this.state
-        //console.log("Fetched venue details: " + this.state.venueDetails.venue.rating)
-
+        
         return (
-            <div className="venue-contents">
-                <img className='venue-photo' alt='place zero' src={photo} />
-                <h2 className='venue-name'>{name}</h2>
-                <h3 className='venue-rating'>Rating:</h3>
-                <div className='venue-info-wrapper'>
-                    <span className='venue-address'>Address</span>
-                    <span className='venue-open-status'>Open: yes/not</span>
-                </div>
-                <p className='venue-description'>Some info here...</p>
-                
-                <ol className='venue-tips'>
-                    <li>Tip...</li>
-                </ol>
-            </div>
+                <div>
+                    {!this.state.loading &&
+                        <div className="venue-contents">
+                                
+                                <img className='venue-photo' alt='place zero' src={photo} />
+                                <h2 className='venue-name'>{name}</h2>
+                                <h3 className='venue-rating'>Rating: {venueDetails.venue.rating} </h3>
+                                <div className='venue-info-wrapper'>
+                                    <span className='venue-address'>Address</span>
+                                    <span className='venue-open-status'>Open: yes/not</span>
+                                </div>
+                                <p className='venue-description'>{venueDetails.venue.description || "No description available."}</p>
+                                
+                                <ol className='venue-tips'>
+                                    <li>"{venueDetails.venue.tips.groups[0].items[0].text}" - {venueDetails.venue.tips.groups[0].items[0].user.firstName} {venueDetails.venue.tips.groups[0].items[0].user.lastName}</li>
+                                </ol>
+                        </div>
+                    } 
+                </div>               
         )
     }
 }
