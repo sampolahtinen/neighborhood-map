@@ -27,6 +27,7 @@ class VenueContents extends Component {
             .then(response => response.json())
             .then((json) => {
                 this.setState({ venueDetails: json.response })
+                console.log(this.state.venueDetails)
             }).then(()=> this.setState({loading: false}))
     }
 
@@ -48,13 +49,12 @@ class VenueContents extends Component {
                 <div>
                     {!this.state.loading &&
                         <div className="venue-contents">
-                                
                                 <img className='venue-photo' alt='place zero' src={photo} />
                                 <h2 className='venue-name'>{name}</h2>
                                 <h3 className='venue-rating'>Rating: {venueDetails.venue.rating} </h3>
                                 <div className='venue-info-wrapper'>
-                                    <span className='venue-address'>Address</span>
-                                    <span className='venue-open-status'>Open: yes/not</span>
+                                    <span className='venue-address'>{venueDetails.venue.location.address}</span>
+                                    <span className='venue-open-status'>{venueDetails.venue.hours.isOpen ? 'Open' :'Closed'}</span>
                                 </div>
                                 <p className='venue-description'>{venueDetails.venue.description || "No description available."}</p>
                                 

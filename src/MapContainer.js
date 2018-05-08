@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import './App.css'
 import VenueContents from "./VenueContents";
 import SearchField from './SearchField';
+import VenueList from './VenueList';
 
 
 export class MapContainer extends Component {
@@ -19,7 +20,7 @@ export class MapContainer extends Component {
         places: [],
         venueDetails: {},
         photo: '',
-        filterQuery: 'bar'
+        filterQuery: ''
     }
     
     onMarkerClick = (props, marker, e) => {
@@ -83,7 +84,7 @@ export class MapContainer extends Component {
         this.setState({places: filteredPlaces})
         console.log(filteredPlaces)*/
         console.log("Current query: " + query)
-        this.setState({filterQuery: query})
+        this.setState({filterQuery: query, showingInfoWindow: false})
         this.fetchFourSquarePlaces()
     }
 
@@ -112,22 +113,27 @@ export class MapContainer extends Component {
                                 position={{ lat: place.venue.location.lat, lng: place.venue.location.lng}} />
                         )
                     }
-                    {this.state.showingInfoWindow && this.state.venueDetails && 
+        
+                </Map>
+            </div>
+                <SearchField
+                    clickHandler={this.onMarkerClick}
+                    filterPlaces={this.filterPlaces}/>
+
+
+                    {this.state.filterQuery.length > 0 &&
+                        <VenueList
+                            places={this.state.places} /> 
+                    }
+                    
+                    {this.state.showingInfoWindow &&
                         <VenueContents
                             name={this.state.selectedPlace.name}
                             photo={this.state.photo}
                             venueId={this.state.selectedPlace.venueId}
-                            
                         />
-                    } 
-                </Map>
-            </div>
-                <SearchField
-                    places={this.state.places}
-                    clickHandler={this.onMarkerClick}
-                    filterPlaces={this.filterPlaces}/>
-
-            
+                    }
+              
         </div>
     );
     }

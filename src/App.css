@@ -29,18 +29,31 @@
 .map-container {
   box-sizing: border-box;
   height: 100vh;
-  flex-grow: 1;
+  width: 100%;
+  /*flex-grow: 1;
   order: 2;
-  flex-basis: 50vw;
-  position: sticky;
-  max-height: 100%;
-  max-width: 100%;
+  flex-basis: 50vw;*/
+  position: absolute;
+  display: inline-block;
+  top: 0;
+  left: 0;
+  z-index: 1;
 }
 
 .search-field {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 25%;
   background-color: #463f42;
+  z-index: 2;
+  border-style: none;
+}
 
+.venues {
+  width: 25%;
+  background-color: #463f42;
 }
 
 .search-field input {
@@ -67,11 +80,17 @@
 .venue-list {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  height: 90vh;
+  height: 100%;
   overflow: scroll;
   color: #fffff4;
   font-size: 1.2em;
   line-height: 1.8;
+  background-color: #463f42;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  z-index: 3;
+  width: 25%;
 }
 
 .venue-list::-webkit-scrollbar {
@@ -89,7 +108,7 @@
 
 
 .venue-contents {
-  width: 200px;
+  width: 25%;
   line-height: 0.8;
   background-color: #463f42;
   color: #fffff4;
@@ -97,10 +116,12 @@
   padding: 10px;
   margin: 0;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  font-size: 0.8em;
-  border-radius: 5%;
+  top: 50px;
+  left: 0;
+  font-size: 1.0em;
+  /*border-radius: 5%;*/
+  z-index: 3;
+  height: 100%;
 }
 .venue-info-wrapper {
   background-color: #ebedea;
@@ -111,7 +132,7 @@
 ;
 }
 .venue-contents img {
-  width: 100%;
+  width: 75%;
 }
 .venue-name {
   text-align: left;
@@ -128,4 +149,13 @@
   padding: 0;
 }
 
-
+.venue-address {
+  display: block;
+  box-sizing: border-box;
+  padding: 10px 0 10px 0;
+}
+.venue-open-status {
+  display: block;
+  box-sizing: border-box;
+  padding: 10px 0 10px 0;
+}
