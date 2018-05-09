@@ -6,8 +6,6 @@ import './App.css'
 class VenueContents extends Component {
 
     static propTypes = {
-        name: PropTypes.string,
-        photo: PropTypes.string,
         venueId: PropTypes.string,
     }
 
@@ -32,6 +30,7 @@ class VenueContents extends Component {
     }
 
     componentDidMount = () => {
+        console.log('Received venueId in VenueContents: ' + this.props.venueId)
         this.fetchDetails(this.props.venueId)
     }
 
@@ -42,19 +41,21 @@ class VenueContents extends Component {
     }
     
     render() {
-        const { name, photo, venueId } = this.props
         const { venueDetails } = this.state
         
         return (
                 <div>
                     {!this.state.loading &&
                         <div className="venue-contents">
-                                <img className='venue-photo' alt='place zero' src={photo} />
-                                <h2 className='venue-name'>{name}</h2>
+                                <img className='venue-photo' alt='place zero' src={venueDetails.venue.bestPhoto.prefix+'300x300'+venueDetails.venue.bestPhoto.suffix} />
+                                <h2 className='venue-name'>{venueDetails.venue.name}</h2>
                                 <h3 className='venue-rating'>Rating: {venueDetails.venue.rating} </h3>
                                 <div className='venue-info-wrapper'>
                                     <span className='venue-address'>{venueDetails.venue.location.address}</span>
-                                    <span className='venue-open-status'>{venueDetails.venue.hours.isOpen ? 'Open' :'Closed'}</span>
+                                    {venueDetails.venue.hours &&
+                                        <span className='venue-open-status'>{venueDetails.venue.hours.isOpen ? 'Open' : 'Closed' }</span>
+                                    }
+                                    
                                 </div>
                                 <p className='venue-description'>{venueDetails.venue.description || "No description available."}</p>
                                 

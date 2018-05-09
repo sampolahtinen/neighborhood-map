@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
 import MapContainer from './MapContainer'
-import SearchField from './SearchField'
-
 
 class App extends Component {
   

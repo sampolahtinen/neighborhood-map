@@ -113,7 +113,7 @@
   background-color: #463f42;
   color: #fffff4;
   box-sizing: border-box;
-  padding: 10px;
+  padding: 0;
   margin: 0;
   position: absolute;
   top: 50px;
@@ -132,7 +132,7 @@
 ;
 }
 .venue-contents img {
-  width: 75%;
+  width: 100%;
 }
 .venue-name {
   text-align: left;

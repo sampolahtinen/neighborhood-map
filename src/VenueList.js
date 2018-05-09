@@ -3,6 +3,12 @@ import PropTypes from 'prop-types'
 import './App.css'
 
 class VenueList extends Component {
+
+    static proptTypes = {
+        places: PropTypes.array,
+        clickHandler: PropTypes.function
+    }
+
     render() {
         return (
                 <div className='venue-list'>
@@ -13,7 +19,7 @@ class VenueList extends Component {
                     }
                     <ol>
                         {this.props.places.map((place) =>
-                            <li className='venue-list-item' key={place.venue.id}>{place.venue.name}</li>
+                            <li className='venue-list-item' key={place.venue.id} onClick={this.props.clickHandler}>{place.venue.name}</li>
                         )}
                     </ol>
                 </div>

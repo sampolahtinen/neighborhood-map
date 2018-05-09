@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react'
+import {Map, Marker, GoogleApiWrapper} from 'google-maps-react'
 import PropTypes from 'prop-types'
 import './App.css'
 import VenueContents from "./VenueContents";
@@ -16,16 +16,14 @@ export class MapContainer extends Component {
     state = {
         showingInfoWindow: false,
         activeMarker: {},
-        selectedPlace: {},
+        selectedPlace: null,
         places: [],
         venueDetails: {},
-        photo: '',
-        filterQuery: ''
+        filterQuery: '',
+        VenueIdFromList: ''
     }
     
     onMarkerClick = (props, marker, e) => {
-        const photoUrl = this.fetchPhoto(props.venueId)
-        //const venueDetails = this.fetchDetails(props.venueId)
         this.setState({
             showingInfoWindow: true,
             activeMarker: marker,
@@ -37,10 +35,13 @@ export class MapContainer extends Component {
         if (this.state.showingInfoWindow) {
             this.setState({
                 showingInfoWindow: false,
-                activeMarker: null
+                activeMarker: null,
+                selectedPlace: null
             })
         }
     }
+    
+    
 
     fetchFourSquarePlaces = () => {
         const clientId = "GWE2ERPO4BDMDPVYSZJIQMS5FPHJ4VNKS0R5XIBDWSPWSOM0"
@@ -62,21 +63,6 @@ export class MapContainer extends Component {
             })
         }
 
-    fetchPhoto = (venueId) => {
-        const clientId = "GWE2ERPO4BDMDPVYSZJIQMS5FPHJ4VNKS0R5XIBDWSPWSOM0"
-        const clientSecret = "EVSK2NXVQ0MQ3BRGURR1F3GB0IKRD4MCGED11PH0C1BOK42V"
-        const version = 20180502
-        const url = `https://api.foursquare.com/v2/venues/${venueId}/photos?&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`
-
-        fetch(url)
-            .then(response => response.json())
-                .then( (json) => {
-                    const size = '150x150'
-                    let imageUrl = json.response.photos.items["0"].prefix + size + json.response.photos.items["0"].suffix
-                    this.setState({photo: imageUrl})
-                })
-    }
-
     filterPlaces = (query) => {
        /* console.log("Query is " +  query)
         let match = new RegExp(query,'i')
@@ -88,7 +74,28 @@ export class MapContainer extends Component {
         this.fetchFourSquarePlaces()
     }
 
+    getVenueIdFromList = (event) => {
+        console.log(event.target.innerHTML)
+        let listItem = event.target.innerHTML.replace('&amp;','&')
+        console.log('Trimmed list ime string ' + listItem)
+        let arrayIndex = this.state.places.findIndex((place)=>{
+            return place.venue.name === listItem
+        })
+        let venueId = this.state.places[arrayIndex].venue.id;
+        this.setState({VenueIdFromList: venueId, showingInfoWindow: true})
+        console.log('Found array index: ' + arrayIndex)
+        console.log('Fetched venueId is ' + venueId)
+        console.log('State VenueIdFromList: ' + this.state.VenueIdFromList)
+        return venueId;
+    }
+
     render() {
+        let props = {} //store selected props to a variable and use spread to pass it to VenueContents component
+        if(this.state.selectedPlace) {
+            props.venueId = this.state.selectedPlace.venueId  
+        } else {
+            props.venueId = this.state.VenueIdFromList
+        }
         return (
             
         <div className='main-content'>
@@ -120,20 +127,17 @@ export class MapContainer extends Component {
                     clickHandler={this.onMarkerClick}
                     filterPlaces={this.filterPlaces}/>
 
-
                     {this.state.filterQuery.length > 0 &&
                         <VenueList
-                            places={this.state.places} /> 
+                            places={this.state.places} 
+                            clickHandler={this.getVenueIdFromList}/> 
                     }
                     
                     {this.state.showingInfoWindow &&
                         <VenueContents
-                            name={this.state.selectedPlace.name}
-                            photo={this.state.photo}
-                            venueId={this.state.selectedPlace.venueId}
+                            {...props}
                         />
                     }
-              
         </div>
     );
     }
