@@ -106,6 +106,12 @@
   padding-top: 10px;
 }
 
+.venue-description {
+  letter-spacing: 2;
+  font-size: 1.1em;
+  letter-spacing: 1.2px;
+  line-height: 1.2
+}
 
 .venue-contents {
   width: 25%;
@@ -113,32 +119,47 @@
   background-color: #463f42;
   color: #fffff4;
   box-sizing: border-box;
+  overflow: scroll;
   padding: 0;
   margin: 0;
   position: absolute;
   top: 50px;
   left: 0;
   font-size: 1.0em;
-  /*border-radius: 5%;*/
   z-index: 3;
   height: 100%;
 }
 .venue-info-wrapper {
   background-color: #ebedea;
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   width: 100%;
-  color:gold;
-  padding: 5px 0 15px 0;
-;
+  /* color: gold; */
+  padding: 10px 25px 0 25px;
+  background-color: #453f42;
 }
 .venue-contents img {
-  width: 100%;
+  width: 85%;
 }
 .venue-name {
+  margin-bottom: 5px;
+  /*display: inline-flex;*/
   text-align: left;
 }
 .venue-rating {
+  display: inline-flex;
+  box-sizing: border-box;
+  padding: 15px;
   text-align: left;
+  margin: 0;
+}
+.venue-likes {
+  display: inline-flex;
+  background-color: rgb(144, 131, 138);
+  box-sizing: border-box;
+  padding: 15px;
+  text-align: left;
+  margin: 0;
 }
 .venue-info-wrapper {
   text-align: left;
@@ -147,15 +168,61 @@
   text-align: left;
   list-style: none;
   padding: 0;
+  font-size: 0.9em;
+  line-height: 1;
+}
+
+.venue-tips li {
+  padding-bottom: 15px;
 }
 
 .venue-address {
   display: block;
   box-sizing: border-box;
   padding: 10px 0 10px 0;
+  margin-bottom: 5px;
 }
 .venue-open-status {
   display: block;
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  padding: 10px 0 10px 0;
+  padding: 15px 0 0;
+  width: 20%;
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.3em;
+}
+
+.tip-giver-name {
+  display: block;
+  color: #74cdc4;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+@media screen and (max-width: 600px) {
+  .map-container {
+    position: absolute;
+    height: 100vh;
+    width: 100%;
+  }
+  .venue-list {
+    top: unset;
+    height: 40%;
+    width: 100%;
+    bottom: 0;
+  }
+  .venue-contents {
+    position: absolute;
+    overflow: scroll;
+    top: unset;
+    height: 60%;
+    width: 100%;
+    bottom: 0%;
+  }
+
+  .search-field {
+    width: 100%;
+  }
+  
 }

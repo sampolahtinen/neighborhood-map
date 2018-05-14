@@ -40,28 +40,44 @@ class VenueContents extends Component {
         }
     }
     
+    isOpen = () => {
+        let color
+        this.state.venueDetails.venue.hours.isOpen ?  color = '#30b54f' : color = 'red'
+        return color
+    }
+
     render() {
         const { venueDetails } = this.state
-        
         return (
                 <div>
                     {!this.state.loading &&
                         <div className="venue-contents">
-                                <img className='venue-photo' alt='place zero' src={venueDetails.venue.bestPhoto.prefix+'300x300'+venueDetails.venue.bestPhoto.suffix} />
-                                <h2 className='venue-name'>{venueDetails.venue.name}</h2>
-                                <h3 className='venue-rating'>Rating: {venueDetails.venue.rating} </h3>
-                                <div className='venue-info-wrapper'>
-                                    <span className='venue-address'>{venueDetails.venue.location.address}</span>
-                                    {venueDetails.venue.hours &&
-                                        <span className='venue-open-status'>{venueDetails.venue.hours.isOpen ? 'Open' : 'Closed' }</span>
-                                    }
-                                    
-                                </div>
-                                <p className='venue-description'>{venueDetails.venue.description || "No description available."}</p>
+                        {venueDetails.venue.bestPhoto ? <img className='venue-photo' alt={venueDetails.venue.name} src={venueDetails.venue.bestPhoto.prefix+'300x300'+venueDetails.venue.bestPhoto.suffix} /> : <span>No Image available</span> }
                                 
-                                <ol className='venue-tips'>
-                                    <li>"{venueDetails.venue.tips.groups[0].items[0].text}" - {venueDetails.venue.tips.groups[0].items[0].user.firstName} {venueDetails.venue.tips.groups[0].items[0].user.lastName}</li>
-                                </ol>
+                                <div className="venue-info-wrapper">
+                                    <h2 className='venue-name'>{venueDetails.venue.name}</h2>
+                                    <span className='venue-address'>{venueDetails.venue.location.address}, {venueDetails.venue.location.city}</span>
+                                    <h3 className='venue-likes'>{venueDetails.venue.likes.summary} </h3>
+                                    <h3 className='venue-rating'style={{backgroundColor: `#${venueDetails.venue.ratingColor}`}}>{venueDetails.venue.rating} </h3>
+                                   
+
+                                    {venueDetails.venue.hours &&
+                                        <span className='venue-open-status'style={{color: `${this.isOpen()}`}}>{venueDetails.venue.hours.isOpen ? 'Open' : 'Closed' }</span>
+                                    }
+                                    <h3>What is?</h3>
+                                    <hr/>
+                                    <p className='venue-description'>{venueDetails.venue.description || "No description available."}</p>
+                                    <h3>Tips</h3>
+                                    <hr/>
+                                    <ol className='venue-tips'>
+                                        {venueDetails.venue.tips && 
+                                            //<li>"{venueDetails.venue.tips.groups[0].items[0].text}" - {venueDetails.venue.tips.groups[0].items[0].user.firstName} {venueDetails.venue.tips.groups[0].items[0].user.lastName}</li>
+                                            venueDetails.venue.tips.groups[0].items.map( tip =>
+                                                <li key={tip.id}> <span className='tip-giver-name'> {tip.user.firstName} {tip.user.lastName}: </span>"{tip.text}"</li>
+                                            )
+                                        }
+                                    </ol>
+                                </div>
                         </div>
                     } 
                 </div>               

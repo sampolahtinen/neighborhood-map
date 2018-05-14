@@ -6,6 +6,7 @@ import VenueContents from "./VenueContents";
 import SearchField from './SearchField';
 import VenueList from './VenueList';
 
+const mobileBoundary = 600;
 
 export class MapContainer extends Component {
 
@@ -14,21 +15,41 @@ export class MapContainer extends Component {
     }
 
     state = {
+        center: {},
         showingInfoWindow: false,
         activeMarker: {},
         selectedPlace: null,
         places: [],
         venueDetails: {},
         filterQuery: '',
-        VenueIdFromList: ''
+        VenueIdFromList: '',
+        mapHeight: '100%',
+        initialQuery: 'cafe'
+    }
+
+    componentDidMount = () => {
+        console.log("Map container loaded")
+        if (!navigator.onLine) {
+            this.setState({places: JSON.parse.localStorage.getItem('places')})
+        }
     }
     
-    onMarkerClick = (props, marker, e) => {
+    checkIfMobile = () => {
+        if(window.innerWidth <= mobileBoundary) {
+            this.setState({mapHeight: '40%'})
+            
+        }
+    }
+
+    onMarkerClick = (props, marker, e, mapProps,map) => {
+        this.checkIfMobile()
+        window.google.maps.event.trigger(this.props.map, 'resize')
         this.setState({
             showingInfoWindow: true,
             activeMarker: marker,
-            selectedPlace: props,
-        })
+            selectedPlace: props
+            //center: {lat: props.position.lat, lng: props.position.lng }
+        })        
     }
 
     onMapClicked = (props) => {
@@ -39,36 +60,36 @@ export class MapContainer extends Component {
                 selectedPlace: null
             })
         }
+        if(window.innerWidth <= mobileBoundary) {
+            this.setState({mapHeight: '100%'})
+        }
     }
     
-    
-
-    fetchFourSquarePlaces = () => {
+    fetchFourSquarePlaces = (lat,lng) => {
         const clientId = "GWE2ERPO4BDMDPVYSZJIQMS5FPHJ4VNKS0R5XIBDWSPWSOM0"
         const clientSecret = "EVSK2NXVQ0MQ3BRGURR1F3GB0IKRD4MCGED11PH0C1BOK42V"
         const version = 20180502
-        const lat = 55.677271
-        const len = 12.573833
+        let query
+        if(!this.state.filterQuery) {
+            query = this.state.initialQuery
+        } else {
+            query = this.state.filterQuery
+        }
 
-       if(!this.state.filterQuery) return
+       if(!this.state.filterQuery) return //makes sure nothing loads at first when map is loaded
 
-        fetch(`https://api.foursquare.com/v2/venues/explore?ll=${lat},${len}&radius=1000&venuePhotos=1&query="${this.state.filterQuery}"&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`)
+        fetch(`https://api.foursquare.com/v2/venues/explore?ll=${lat || 55.677271},${lng || 12.573833}&radius=1000&venuePhotos=1&query="${this.state.filterQuery}"&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`)
             .then( (response) => {
                 return response.json()
             }).then((json) =>{
-                //console.log("Query printing from fetc: " + this.state.filterQuery)
                 this.setState({
                     places: json.response.groups["0"].items
                 })
+                localStorage.setItem('places',JSON.stringify(json.response.groups["0"].items))
             })
         }
 
     filterPlaces = (query) => {
-       /* console.log("Query is " +  query)
-        let match = new RegExp(query,'i')
-        let filteredPlaces = this.state.places.filter( place => match.test(place.venue.name))
-        this.setState({places: filteredPlaces})
-        console.log(filteredPlaces)*/
         console.log("Current query: " + query)
         this.setState({filterQuery: query, showingInfoWindow: false})
         this.fetchFourSquarePlaces()
@@ -77,16 +98,24 @@ export class MapContainer extends Component {
     getVenueIdFromList = (event) => {
         console.log(event.target.innerHTML)
         let listItem = event.target.innerHTML.replace('&amp;','&')
-        console.log('Trimmed list ime string ' + listItem)
         let arrayIndex = this.state.places.findIndex((place)=>{
             return place.venue.name === listItem
         })
         let venueId = this.state.places[arrayIndex].venue.id;
         this.setState({VenueIdFromList: venueId, showingInfoWindow: true})
-        console.log('Found array index: ' + arrayIndex)
-        console.log('Fetched venueId is ' + venueId)
-        console.log('State VenueIdFromList: ' + this.state.VenueIdFromList)
+
+        this.checkIfMobile()
+
         return venueId;
+    }
+
+    centerMoved = (mapProps, map) => {
+        if(!this.state.showingInfoWindow) {
+            let newCenter = map.getCenter()
+            map.setCenter(newCenter)
+            this.setState({center: newCenter})
+            this.fetchFourSquarePlaces(newCenter.lat(), newCenter.lng())
+        }
     }
 
     render() {
@@ -99,17 +128,19 @@ export class MapContainer extends Component {
         return (
             
         <div className='main-content'>
-            <div className="map-container">
+            <div className="map-container" role='application' aria-label='Google Maps'>
                 <Map 
                     onReady={this.fetchFourSquarePlaces}
                     google={this.props.google}
-                    style={{width: '100%', height: '100%', position: 'relative'}}
+                    style={{width: '100%', height: this.state.mapHeight, position: 'relative'}}
                     styles={this.props.styles}
                     initialCenter={{
                         lat: 55.677271,
                         lng:  12.573833
                     }}
+                    center={this.state.center}
                     zoom={16}
+                    onDragend={this.centerMoved}
                     onClick={this.onMapClicked}>
                         {this.state.places.map((place) =>
                             <Marker
@@ -127,7 +158,7 @@ export class MapContainer extends Component {
                     clickHandler={this.onMarkerClick}
                     filterPlaces={this.filterPlaces}/>
 
-                    {this.state.filterQuery.length > 0 &&
+                    {this.state.filterQuery.length > 0 && !this.state.showingInfoWindow && 
                         <VenueList
                             places={this.state.places} 
                             clickHandler={this.getVenueIdFromList}/> 
