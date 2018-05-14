@@ -32,6 +32,12 @@ export class MapContainer extends Component {
         if (!navigator.onLine) {
             this.setState({places: JSON.parse.localStorage.getItem('places')})
         }
+        window.addEventListener('keydown', (event)=>{
+            if(event.keyCode === 8) {
+                console.log("backspace was pressed")
+                this.setState({showingInfoWindow: false})
+            }
+        })
     }
     
     checkIfMobile = () => {
@@ -69,12 +75,6 @@ export class MapContainer extends Component {
         const clientId = "GWE2ERPO4BDMDPVYSZJIQMS5FPHJ4VNKS0R5XIBDWSPWSOM0"
         const clientSecret = "EVSK2NXVQ0MQ3BRGURR1F3GB0IKRD4MCGED11PH0C1BOK42V"
         const version = 20180502
-        let query
-        if(!this.state.filterQuery) {
-            query = this.state.initialQuery
-        } else {
-            query = this.state.filterQuery
-        }
 
        if(!this.state.filterQuery) return //makes sure nothing loads at first when map is loaded
 
@@ -91,7 +91,7 @@ export class MapContainer extends Component {
 
     filterPlaces = (query) => {
         console.log("Current query: " + query)
-        this.setState({filterQuery: query, showingInfoWindow: false})
+        this.setState({filterQuery: query, showingInfoWindow: false, mapHeight: '100%'})
         this.fetchFourSquarePlaces()
     }
 
@@ -128,6 +128,7 @@ export class MapContainer extends Component {
         return (
             
         <div className='main-content'>
+        
             <div className="map-container" role='application' aria-label='Google Maps'>
                 <Map 
                     onReady={this.fetchFourSquarePlaces}
@@ -151,7 +152,6 @@ export class MapContainer extends Component {
                                 position={{ lat: place.venue.location.lat, lng: place.venue.location.lng}} />
                         )
                     }
-        
                 </Map>
             </div>
                 <SearchField

@@ -19,7 +19,7 @@ class VenueList extends Component {
                     }
                     <ol>
                         {this.props.places.map((place) =>
-                            <li className='venue-list-item' key={place.venue.id} onClick={this.props.clickHandler}>{place.venue.name}</li>
+                            <li className='venue-list-item' key={place.venue.id} onKeyPress={this.props.clickHandler} onClick={this.props.clickHandler} tabIndex='0'>{place.venue.name}</li>
                         )}
                     </ol>
                 </div>

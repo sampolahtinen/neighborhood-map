@@ -25,6 +25,7 @@ class VenueContents extends Component {
             .then(response => response.json())
             .then((json) => {
                 this.setState({ venueDetails: json.response })
+                localStorage.setItem('venueDetails', JSON.stringify(json.response))
                 console.log(this.state.venueDetails)
             }).then(()=> this.setState({loading: false}))
     }
