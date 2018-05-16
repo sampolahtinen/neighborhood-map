@@ -11,7 +11,8 @@ class VenueContents extends Component {
 
     state = {
         venueDetails: {},
-        loading: true
+        loading: true,
+        fetchError: false
     }
 
     fetchDetails = (venueId) => {
@@ -27,7 +28,9 @@ class VenueContents extends Component {
                 this.setState({ venueDetails: json.response })
                 localStorage.setItem('venueDetails', JSON.stringify(json.response))
                 console.log(this.state.venueDetails)
-            }).then(()=> this.setState({loading: false}))
+            }).then(()=> this.setState({loading: false})).catch(error => {
+                this.setState({fetchError: true})
+            })
     }
 
     componentDidMount = () => {
@@ -51,6 +54,11 @@ class VenueContents extends Component {
         const { venueDetails } = this.state
         return (
                 <div>
+                    {this.state.fetchError && 
+                        <div className='fetch-error'>
+                            <h2>There was an error in fetching details from Frousquare :(</h2>
+                        </div>
+                    }
                     {!this.state.loading &&
                         <div className="venue-contents">
                         {venueDetails.venue.bestPhoto ? <img className='venue-photo' alt={venueDetails.venue.name} src={venueDetails.venue.bestPhoto.prefix+'300x300'+venueDetails.venue.bestPhoto.suffix} /> : <span>No Image available</span> }
@@ -72,7 +80,6 @@ class VenueContents extends Component {
                                     <hr/>
                                     <ol className='venue-tips'>
                                         {venueDetails.venue.tips && 
-                                            //<li>"{venueDetails.venue.tips.groups[0].items[0].text}" - {venueDetails.venue.tips.groups[0].items[0].user.firstName} {venueDetails.venue.tips.groups[0].items[0].user.lastName}</li>
                                             venueDetails.venue.tips.groups[0].items.map( tip =>
                                                 <li key={tip.id}> <span className='tip-giver-name'> {tip.user.firstName} {tip.user.lastName}: </span>"{tip.text}"</li>
                                             )

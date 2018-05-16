@@ -30,9 +30,6 @@
   box-sizing: border-box;
   height: 100vh;
   width: 100%;
-  /*flex-grow: 1;
-  order: 2;
-  flex-basis: 50vw;*/
   position: absolute;
   display: inline-block;
   top: 0;
@@ -91,15 +88,25 @@
   left: 0;
   z-index: 3;
   width: 25%;
+  cursor: pointer;
+}
+
+.venue-list li {
+  padding-left: 15px;
+}
+
+.venue-list li:hover {
+  background-color: #D3D3D3;
 }
 
 .venue-list::-webkit-scrollbar {
   width: 0;
 }
+
 .venue-list ol {
   text-align: left;
-  padding-left: 15px;
   list-style: none;
+  padding: 0;
 }
 
 .venue-list-item {
@@ -129,6 +136,7 @@
   z-index: 3;
   height: 100%;
 }
+
 .venue-info-wrapper {
   background-color: #ebedea;
   -webkit-box-sizing: border-box;
@@ -138,14 +146,17 @@
   padding: 10px 25px 0 25px;
   background-color: #453f42;
 }
+
 .venue-contents img {
   width: 85%;
 }
+
 .venue-name {
   margin-bottom: 5px;
   /*display: inline-flex;*/
   text-align: left;
 }
+
 .venue-rating {
   display: inline-flex;
   box-sizing: border-box;
@@ -153,6 +164,7 @@
   text-align: left;
   margin: 0;
 }
+
 .venue-likes {
   display: inline-flex;
   background-color: rgb(144, 131, 138);
@@ -161,9 +173,11 @@
   text-align: left;
   margin: 0;
 }
+
 .venue-info-wrapper {
   text-align: left;
 }
+
 .venue-tips {
   text-align: left;
   list-style: none;
@@ -182,6 +196,7 @@
   padding: 10px 0 10px 0;
   margin-bottom: 5px;
 }
+
 .venue-open-status {
   display: block;
   -webkit-box-sizing: border-box;
@@ -201,17 +216,20 @@
 }
 
 @media screen and (max-width: 600px) {
+
   .map-container {
     position: absolute;
     height: 100vh;
     width: 100%;
   }
+
   .venue-list {
     top: unset;
     height: 40%;
     width: 100%;
     bottom: 0;
   }
+
   .venue-contents {
     position: absolute;
     overflow: scroll;
@@ -224,5 +242,5 @@
   .search-field {
     width: 100%;
   }
-  
+
 }

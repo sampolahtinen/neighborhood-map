@@ -13,6 +13,7 @@ class SearchField extends Component {
                     className='input-field' 
                     type='text' 
                     placeholder="Search Places.."
+                    role='search'
                     onChange={ event => this.props.filterPlaces(event.target.value)}/>
             </div>
         )
