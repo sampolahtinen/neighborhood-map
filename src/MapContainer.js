@@ -24,7 +24,8 @@ export class MapContainer extends Component {
         filterQuery: '',
         VenueIdFromList: '',
         mapHeight: '100%',
-        initialQuery: 'cafe'
+        mapWidth: '100%',
+        map: {}
     }
 
     componentDidMount = () => {
@@ -40,21 +41,24 @@ export class MapContainer extends Component {
         })
     }
     
-    checkIfMobile = () => {
+    checkIfMobile = (height) => {
         if(window.innerWidth <= mobileBoundary) {
-            this.setState({mapHeight: '40%'})
-            
+            this.setState({mapHeight: height || '40%'})
         }
+        
     }
 
-    onMarkerClick = (props, marker, e, mapProps,map) => {
+    onMarkerClick = (props, marker, e) => {
         this.checkIfMobile()
-        window.google.maps.event.trigger(this.props.map, 'resize')
+        const match = new RegExp(marker.name,'i')
+        let filteredPlaces = this.state.places.filter(place => match.test(place.venue.name))
         this.setState({
             showingInfoWindow: true,
+            mapWidth: '75%',
             activeMarker: marker,
-            selectedPlace: props
-            //center: {lat: props.position.lat, lng: props.position.lng }
+            selectedPlace: props,
+            places: filteredPlaces,
+            center: marker.position
         })        
     }
 
@@ -66,19 +70,23 @@ export class MapContainer extends Component {
                 selectedPlace: null
             })
         }
-        if(window.innerWidth <= mobileBoundary) {
-            this.setState({mapHeight: '100%'})
+        if (window.innerWidth <= mobileBoundary) {
+            this.setState({ mapHeight: '60%' })
         }
+        //
+        this.fetchFourSquarePlaces()
     }
     
-    fetchFourSquarePlaces = (lat,lng) => {
+    fetchFourSquarePlaces = () => {
         const clientId = "GWE2ERPO4BDMDPVYSZJIQMS5FPHJ4VNKS0R5XIBDWSPWSOM0"
         const clientSecret = "EVSK2NXVQ0MQ3BRGURR1F3GB0IKRD4MCGED11PH0C1BOK42V"
         const version = 20180502
+        let lat = this.state.center.lat ? this.state.center.lat() : 55.677271
+        let lng = this.state.center.lng ? this.state.center.lng() : 12.57383
 
-       if(!this.state.filterQuery) return //makes sure nothing loads at first when map is loaded
+        if(!this.state.filterQuery) return //makes sure nothing loads at first when map is loaded
 
-        fetch(`https://api.foursquare.com/v2/venues/explore?ll=${lat || 55.677271},${lng || 12.573833}&radius=1000&venuePhotos=1&query="${this.state.filterQuery}"&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`)
+        fetch(`https://api.foursquare.com/v2/venues/explore?ll=${lat},${lng}&radius=1000&venuePhotos=1&query="${this.state.filterQuery}"&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`)
             .then( (response) => {
                 return response.json()
             }).then((json) =>{
@@ -90,9 +98,14 @@ export class MapContainer extends Component {
         }
 
     filterPlaces = (query) => {
-        console.log("Current query: " + query)
-        this.setState({filterQuery: query, showingInfoWindow: false, mapHeight: '100%'})
-        this.fetchFourSquarePlaces()
+            this.setState({ filterQuery: query, showingInfoWindow: false, mapHeight: '100%', mapWidth: '75%'})
+            this.fetchFourSquarePlaces()
+            if(query.length === 0) {
+                this.checkIfMobile('100%')
+                this.setState({mapWidth: '100%'})
+            } else {
+                this.checkIfMobile('60%')
+            }
     }
 
     getVenueIdFromList = (event) => {
@@ -101,11 +114,17 @@ export class MapContainer extends Component {
         let arrayIndex = this.state.places.findIndex((place)=>{
             return place.venue.name === listItem
         })
-        let venueId = this.state.places[arrayIndex].venue.id;
-        this.setState({VenueIdFromList: venueId, showingInfoWindow: true})
+        let venueId = this.state.places[arrayIndex].venue.id
+        console.log(this.state.places[arrayIndex].venue.position)
+        let match = new RegExp(venueId,'i')
+        let filteredPlaces = this.state.places.filter(place => match.test(place.venue.id))
 
+        this.setState({
+            VenueIdFromList: venueId,
+            showingInfoWindow: true, 
+            places: filteredPlaces, 
+            center: { lat: this.state.places[arrayIndex].venue.location.lat, lng: this.state.places[arrayIndex].venue.location.lng }})
         this.checkIfMobile()
-
         return venueId;
     }
 
@@ -114,12 +133,17 @@ export class MapContainer extends Component {
             let newCenter = map.getCenter()
             map.setCenter(newCenter)
             this.setState({center: newCenter})
-            this.fetchFourSquarePlaces(newCenter.lat(), newCenter.lng())
+            this.fetchFourSquarePlaces()
+            console.log("Map moved. New center is: " + newCenter)
         }
+        
     }
 
     render() {
         let props = {} //store selected props to a variable and use spread to pass it to VenueContents component
+        let mapContainerStyles = {
+            width: this.state.mapWidth
+        }
         if(this.state.selectedPlace) {
             props.venueId = this.state.selectedPlace.venueId  
         } else {
@@ -128,8 +152,7 @@ export class MapContainer extends Component {
         return (
             
         <div className='main-content'>
-        
-            <div className="map-container" role='application' aria-label='Google Maps'>
+            <div className="map-container" role='application' aria-label='Google Maps' style={mapContainerStyles}>
                 <Map 
                     onReady={this.fetchFourSquarePlaces}
                     google={this.props.google}
