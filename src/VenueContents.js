@@ -6,7 +6,7 @@ import './App.css'
 class VenueContents extends Component {
 
     static propTypes = {
-        venueId: PropTypes.string,
+        venueId: PropTypes.string.isRequired,
     }
 
     state = {
@@ -53,7 +53,7 @@ class VenueContents extends Component {
     render() {
         const { venueDetails } = this.state
         return (
-                <div>
+                <div aria-label='venue-details'>
                     {this.state.fetchError && 
                         <div className='fetch-error'>
                             <h2>There was an error in fetching details from Frousquare :(</h2>
@@ -69,7 +69,6 @@ class VenueContents extends Component {
                                     <h3 className='venue-likes'>{venueDetails.venue.likes.summary} </h3>
                                     <h3 className='venue-rating'style={{backgroundColor: `#${venueDetails.venue.ratingColor}`}}>{venueDetails.venue.rating} </h3>
                                    
-
                                     {venueDetails.venue.hours &&
                                         <span className='venue-open-status'style={{color: `${this.isOpen()}`}}>{venueDetails.venue.hours.isOpen ? 'Open' : 'Closed' }</span>
                                     }

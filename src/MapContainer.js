@@ -96,8 +96,6 @@ export class MapContainer extends Component {
         let lat = this.state.center.lat || 55.677271
         let lng = this.state.center.lng || 12.57383
 
-        //if(!this.state.filterQuery) return //makes sure nothing loads at first when map is loaded
-
         fetch(`https://api.foursquare.com/v2/venues/explore?ll=${lat},${lng}&radius=1000&venuePhotos=1&query="${query}"&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`)
             .then( (response) => {
                 return response.json()
@@ -109,6 +107,8 @@ export class MapContainer extends Component {
             })
         }
 
+    // This function is passed as a prop to SearchField. When user types the typed text
+    // will be passed to fetchFourSquarePlaces to search for new places
     filterPlaces = (query) => {
         if( this.isMobile() ) {
             this.reSizeMap('100%','60%')
@@ -126,16 +126,21 @@ export class MapContainer extends Component {
             }   
         }
 
+    // This func is passed as a prop to VenueList component and assigned to each list item.
+    // Once a venue list item is clicked, it takes the list item name and finds the corresponding name from this.state.places
+    // and returns the index of that place. That index is used to find venueId. That venueId is stored to this.state.VenueIdFromList.
+    // When rendering VenueContents component, there is a conditional check that checks if this.state.VenueIdFromList is avaialable.
+    // If yes, that id is passed as a prop to VenueContents. If not, selected marker is passed as a prop to VenueContents.
     getVenueIdFromList = (event) => {
         if(this.isMobile()) this.reSizeMap('100%','40%')
-        console.log(event.target.innerHTML)
+    
         let listItem = event.target.innerHTML.replace('&amp;','&')
         let arrayIndex = this.state.places.findIndex((place)=>{
             return place.venue.name === listItem
         })
+
         let venueId = this.state.places[arrayIndex].venue.id
 
-        console.log(this.state.places[arrayIndex].venue.location)
         let match = new RegExp(venueId,'i')
         let filteredPlaces = this.state.places.filter(place => match.test(place.venue.id))
 
@@ -162,14 +167,17 @@ export class MapContainer extends Component {
     }
 
     render() {
-        let props = {} //store selected props to a variable and use spread to pass it to VenueContents component
+        //store selected props to a variable and use spread to pass it to VenueContents component.
+        let props = {} 
         let mapContainerStyles = {
             width: this.state.mapWidth
         }
 
         if(this.state.selectedPlace) {
+            // If a marker was clicked, pass the corresponding venueId of the marker as a prop to VenueContents
             props.venueId = this.state.selectedPlace.venueId  
         } else {
+            // Else it must be the VenueList what was clicked. Thus, pass the VenueIdFromList as a prop to VenueContents
             props.venueId = this.state.VenueIdFromList
         }
 
@@ -212,7 +220,7 @@ export class MapContainer extends Component {
                     
                     {this.state.showingInfoWindow &&
                         <VenueContents
-                            {...props}
+                            {...props} // props contains either venueId from clicked marker or clicked venueList item
                         />
                     }
         </div>
