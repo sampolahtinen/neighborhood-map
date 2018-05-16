@@ -10,6 +10,6 @@ This is the final project for Udacity's Front End Nanodegree program. It is a si
 
 
 ### Resources
-google-maps-react library: https://github.com/fullstackreact/google-maps-react
-Google Maps API v3: https://developers.google.com/maps/documentation/javascript/tutorial
-Foursquare API: https://developer.foursquare.com/docs/api/
+*google-maps-react library: https://github.com/fullstackreact/google-maps-react
+*Google Maps API v3: https://developers.google.com/maps/documentation/javascript/tutorial
+*Foursquare API: https://developer.foursquare.com/docs/api/
