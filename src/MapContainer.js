@@ -243,7 +243,6 @@ export class MapContainer extends Component {
 
                     {this.state.filterQuery.length > 0 && !this.state.showingInfoWindow &&
                         <VenueList
-                            otherProps={this.props}
                             places={this.state.places} 
                             clickHandler={this.getVenueIdFromList}/> 
                     }
