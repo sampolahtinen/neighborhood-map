@@ -22,26 +22,30 @@ export class MapContainer extends Component {
         places: [],
         venueDetails: {},
         filterQuery: 'café', //Instead of displaying empty map, café will be used as first query
-        initialQuery: '',
         VenueIdFromList: '',
         mapHeight: '100%',
         mapWidth: '100%',
+        errorOccurred: false,
+        errorMessage: {},
+        markerIcon: '',
         map: {}
     }
 
     componentDidMount = () => {
         console.log("Map container loaded")
-        /*
-        if (!navigator.onLine) {
-            this.setState({places: JSON.parse.localStorage.getItem('places')})
-        }
-        */
         window.addEventListener('keydown', (event)=>{
             if(event.keyCode === 8) {
                 console.log("backspace was pressed")
                 this.setState({showingInfoWindow: false})
             }
         })
+    }
+
+    componentDidCatch(error, info) {
+        // Display fallback UI
+        this.setState({ errorOccurred: true, errorMessage: error });
+        // You can also log the error to an error reporting service
+        console.log(error);
     }
 
     //checks if viewport is in the mobile range and return true
@@ -53,6 +57,16 @@ export class MapContainer extends Component {
         this.setState({mapWidth: width || '100%', mapHeight: height || '100%'})
     }
 
+    createMarkerIcon = (google) => {
+        var markerImage = new google.maps.MarkerImage(
+            'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+            new google.maps.Size(45,40),
+            new google.maps.Point(0, 0),
+            new google.maps.Point(25, 40),
+            new google.maps.Size(45,40));
+        return markerImage;
+    }
+
     onMarkerClick = (props, marker, e) => {
         if( this.isMobile() ) {
             this.reSizeMap('100%','40%')
@@ -61,13 +75,15 @@ export class MapContainer extends Component {
         //on marker click filters requested places to only show the corresponding marker
         const match = new RegExp(marker.name,'i')
         let filteredPlaces = this.state.places.filter(place => match.test(place.venue.name))
-
+        
+        console.log(marker)
         this.setState({
             showingInfoWindow: true,
             activeMarker: marker,
             selectedPlace: props,
             places: filteredPlaces,
-            center: {lat: marker.position.lat(), lng: marker.position.lng()}
+            center: {lat: marker.position.lat(), lng: marker.position.lng()},
+            markerIcon: this.createMarkerIcon(this.props.google)//
         })        
     }
 
@@ -76,7 +92,8 @@ export class MapContainer extends Component {
             this.setState({
                 showingInfoWindow: false,
                 activeMarker: null,
-                selectedPlace: null
+                selectedPlace: null,
+                markerIcon: ''
             })
         }
         if(this.isMobile()) {
@@ -84,7 +101,6 @@ export class MapContainer extends Component {
             if(this.state.filterQuery.length === 0) this.reSizeMap('100%','100%')
         }
 
-        //Because onMarkerClick filters fetched places, places need to be fetched again when the map is clicked and venue contents is hidden
         this.fetchFourSquarePlaces()
     }
     
@@ -92,7 +108,7 @@ export class MapContainer extends Component {
         const clientId = "GWE2ERPO4BDMDPVYSZJIQMS5FPHJ4VNKS0R5XIBDWSPWSOM0"
         const clientSecret = "EVSK2NXVQ0MQ3BRGURR1F3GB0IKRD4MCGED11PH0C1BOK42V"
         const version = 20180502
-        let query = this.state.filterQuery.length > 0 ? this.state.filterQuery : this.state.initialQuery
+        let query =  this.state.filterQuery
         let lat = this.state.center.lat || 55.677271
         let lng = this.state.center.lng || 12.57383
 
@@ -103,7 +119,6 @@ export class MapContainer extends Component {
                 this.setState({
                     places: json.response.groups["0"].items
                 })
-                //localStorage.setItem('places',JSON.stringify(json.response.groups["0"].items))
             })
         }
 
@@ -117,6 +132,7 @@ export class MapContainer extends Component {
         }
         this.setState({ filterQuery: query, showingInfoWindow: false})
         this.fetchFourSquarePlaces()
+
         //if query length is 0 resizes the map and hides the venuelist
         if(query.length === 0) {
             if( this.isMobile() ) {
@@ -148,6 +164,7 @@ export class MapContainer extends Component {
             VenueIdFromList: venueId,
             showingInfoWindow: true, 
             places: filteredPlaces,
+            markerIcon: this.createMarkerIcon(this.props.google),
             center: { lat: this.state.places[arrayIndex].venue.location.lat, lng: this.state.places[arrayIndex].venue.location.lng }
         })
 
@@ -181,6 +198,15 @@ export class MapContainer extends Component {
             props.venueId = this.state.VenueIdFromList
         }
 
+        if(this.state.errorOccurred) {
+               return (
+                   <div className='error-container'>
+                       <h2>Google Maps couldn't be loaded :(</h2>
+                       <p>Reason: {this.state.errorMessage.message}</p>
+                   </div>
+               ) 
+        }
+
         return (
         <div className='main-content'>
             <div className="map-container" role='application' aria-label='Google Maps' style={mapContainerStyles}>
@@ -203,7 +229,8 @@ export class MapContainer extends Component {
                                 key={place.venue.id}
                                 venueId={place.venue.id}
                                 name={place.venue.name}
-                                position={{ lat: place.venue.location.lat, lng: place.venue.location.lng}} />
+                                position={{ lat: place.venue.location.lat, lng: place.venue.location.lng}}
+                                icon={this.state.markerIcon} />
                         )
                     }
                 </Map>

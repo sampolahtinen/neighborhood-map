@@ -10,10 +10,11 @@ class SearchField extends Component {
         return(
             <div className='search-field'>
                 <input 
+                    aria-label='Search'
+                    role='search'
                     className='input-field' 
                     type='text' 
                     placeholder="Search Places.."
-                    role='search'
                     onChange={ event => this.props.filterPlaces(event.target.value)}/>
             </div>
         )

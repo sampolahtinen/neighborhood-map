@@ -12,25 +12,35 @@ class VenueContents extends Component {
     state = {
         venueDetails: {},
         loading: true,
-        fetchError: false
+        errorOccurred: false,
+        errorMessage: {}
     }
 
     fetchDetails = (venueId) => {
-        console.log("I am fetchDetails")
         const clientId = "GWE2ERPO4BDMDPVYSZJIQMS5FPHJ4VNKS0R5XIBDWSPWSOM0"
         const clientSecret = "EVSK2NXVQ0MQ3BRGURR1F3GB0IKRD4MCGED11PH0C1BOK42V"
         const version = 20180502
         const url = `https://api.foursquare.com/v2/venues/${venueId}?&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`
 
         fetch(url)
-            .then(response => response.json())
+            .then(response => {
+                if(response.status !== 200) {
+                    this.setState({errorOccurred: true})
+                }
+                return response.json()
+            })
             .then((json) => {
                 this.setState({ venueDetails: json.response })
                 localStorage.setItem('venueDetails', JSON.stringify(json.response))
                 console.log(this.state.venueDetails)
-            }).then(()=> this.setState({loading: false})).catch(error => {
-                this.setState({fetchError: true})
-            })
+            }).then(()=> this.setState({loading: false}))
+    }
+
+    componentDidCatch(error) {
+        // Display fallback UI
+        this.setState({ errorOccurred: true, errorMessage: error });
+        // You can also log the error to an error reporting service
+        console.log(error);
     }
 
     componentDidMount = () => {
@@ -52,13 +62,17 @@ class VenueContents extends Component {
 
     render() {
         const { venueDetails } = this.state
+
+        if(this.state.errorOccurred) {
+            return (
+                    <div className='error-container'>
+                        <h2>There was an error in fetching details from Frousquare :(</h2>
+                    </div>
+            )
+        }
+
         return (
                 <div aria-label='venue-details'>
-                    {this.state.fetchError && 
-                        <div className='fetch-error'>
-                            <h2>There was an error in fetching details from Frousquare :(</h2>
-                        </div>
-                    }
                     {!this.state.loading &&
                         <div className="venue-contents">
                         {venueDetails.venue.bestPhoto ? <img className='venue-photo' alt={venueDetails.venue.name} src={venueDetails.venue.bestPhoto.prefix+'300x300'+venueDetails.venue.bestPhoto.suffix} /> : <span>No Image available</span> }

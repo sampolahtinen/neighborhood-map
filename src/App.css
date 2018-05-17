@@ -215,6 +215,17 @@
   font-weight: 600;
 }
 
+.error-container {
+  width: 100%;
+  color: #463f42;
+  font-size: 1.5em;
+  margin-top: 25%;
+}
+
+.error-container p {
+  color: #D3D3D3;
+}
+
 @media screen and (max-width: 600px) {
 
   .map-container {
@@ -241,6 +252,11 @@
 
   .search-field {
     width: 100%;
+  }
+
+  .error-container {
+    font-size: 0.9em;
+    margin-top: 100%;
   }
 
 }
