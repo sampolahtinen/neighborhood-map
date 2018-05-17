@@ -5,8 +5,11 @@ This is the final project for Udacity's Front End Nanodegree program. It is a si
 ## Installation
 1. Clone this repo
 2. Navigate to the folder via terminal
-3. Launch the application with serve -s build
-4. Enjoy!
+3. Install dependencies by typing 'npm install' in terminal
+4. To launch the app in development build, type 'npm start'
+5. To create an optimized build, type "npm build"
+6. After creating a build version, launch it by typing 'serve -s build'
+* If you dont have serve installed, install it by using 'npm install -g serve'
 
 
 ### Resources
