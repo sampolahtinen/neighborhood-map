@@ -71,6 +71,11 @@ export class MapContainer extends Component {
         if( this.isMobile() ) {
             this.reSizeMap('100%','40%')
         }
+        console.log(props)
+        console.log(this.props)
+        let bounds = new props.google.maps.LatLngBounds(marker.position);
+        props.map.panTo(marker.position)
+        //this.props.google.maps.panTo(marker.position); -> not owrking
 
         //on marker click filters requested places to only show the corresponding marker
         const match = new RegExp(marker.name,'i')
@@ -82,7 +87,6 @@ export class MapContainer extends Component {
             activeMarker: marker,
             selectedPlace: props,
             places: filteredPlaces,
-            center: {lat: marker.position.lat(), lng: marker.position.lng()},
             markerIcon: this.createMarkerIcon(this.props.google)//
         })        
     }
@@ -167,8 +171,6 @@ export class MapContainer extends Component {
             markerIcon: this.createMarkerIcon(this.props.google),
             center: { lat: this.state.places[arrayIndex].venue.location.lat, lng: this.state.places[arrayIndex].venue.location.lng }
         })
-
-        
         return venueId;
     }
 
@@ -241,6 +243,7 @@ export class MapContainer extends Component {
 
                     {this.state.filterQuery.length > 0 && !this.state.showingInfoWindow &&
                         <VenueList
+                            otherProps={this.props}
                             places={this.state.places} 
                             clickHandler={this.getVenueIdFromList}/> 
                     }
