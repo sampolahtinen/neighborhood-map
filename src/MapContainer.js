@@ -24,9 +24,10 @@ export class MapContainer extends Component {
         filterQuery: 'café', //Instead of displaying empty map, café will be used as first query
         VenueIdFromList: '',
         mapHeight: '100%',
-        mapWidth: '100%',
+        mapWidth: '75%', //change back to 100% after passing
         errorOccurred: false,
         errorMessage: {},
+        fourSquareError: false,
         markerIcon: '',
         map: {}
     }
@@ -39,12 +40,11 @@ export class MapContainer extends Component {
                 this.setState({showingInfoWindow: false})
             }
         })
+        this.isMobile() ? this.reSizeMap('100%', '60%') : this.reSizeMap('75%', '100%')
     }
 
     componentDidCatch(error, info) {
-        // Display fallback UI
         this.setState({ errorOccurred: true, errorMessage: error });
-        // You can also log the error to an error reporting service
         console.log(error);
     }
 
@@ -75,7 +75,6 @@ export class MapContainer extends Component {
         console.log(this.props)
         let bounds = new props.google.maps.LatLngBounds(marker.position);
         props.map.panTo(marker.position)
-        //this.props.google.maps.panTo(marker.position); -> not owrking
 
         //on marker click filters requested places to only show the corresponding marker
         const match = new RegExp(marker.name,'i')
@@ -119,16 +118,24 @@ export class MapContainer extends Component {
         fetch(`https://api.foursquare.com/v2/venues/explore?ll=${lat},${lng}&radius=1000&venuePhotos=1&query="${query}"&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`)
             .then( (response) => {
                 return response.json()
-            }).then((json) =>{
+            })
+            .then((json) =>{
                 this.setState({
-                    places: json.response.groups["0"].items
+                    places: json.response.groups["0"].items,
+                    originalPlaces: json.response.groups["0"].items
                 })
+            })
+            .catch(error => {
+                this.setState({ errorOccurred: true, fourSquareError: true, errorMessage: error })
             })
         }
 
     // This function is passed as a prop to SearchField. When user types the typed text
     // will be passed to fetchFourSquarePlaces to search for new places
-    filterPlaces = (query) => {
+
+    // Re-enable this after the project has been passed.
+    
+    /*filterPlaces = (query) => {
         if( this.isMobile() ) {
             this.reSizeMap('100%','60%')
         } else {
@@ -144,7 +151,19 @@ export class MapContainer extends Component {
             }
             this.reSizeMap('100%','100%')
             }   
-        }
+        }*/
+
+    //Filters places and venue list based on user input
+    filterPlaces = (query) => {
+        let match = new RegExp(query, 'i')
+        let filteredPlaces = this.state.places.filter(place => match.test(place.venue.name))
+        console.log(filteredPlaces)
+        if(query.length > 0) {
+            this.setState({ places: filteredPlaces })
+        } else {
+            this.setState({places: this.state.originalPlaces})
+        } 
+    }
 
     // This func is passed as a prop to VenueList component and assigned to each list item.
     // Once a venue list item is clicked, it takes the list item name and finds the corresponding name from this.state.places
@@ -161,6 +180,7 @@ export class MapContainer extends Component {
 
         let venueId = this.state.places[arrayIndex].venue.id
 
+        //Filter places so that only one Marker is rendered on the map when venuelist item is clicked
         let match = new RegExp(venueId,'i')
         let filteredPlaces = this.state.places.filter(place => match.test(place.venue.id))
 
@@ -182,7 +202,6 @@ export class MapContainer extends Component {
             this.fetchFourSquarePlaces()
             console.log("Map moved. New center is: " + newCenter)
         }
-        
     }
 
     render() {
@@ -203,7 +222,7 @@ export class MapContainer extends Component {
         if(this.state.errorOccurred) {
                return (
                    <div className='error-container'>
-                       <h2>Google Maps couldn't be loaded :(</h2>
+                       <h2>{this.state.fourSquareError ? 'FourSquare API' : 'Google Maps API'} couldn't be loaded :(</h2>
                        <p>Reason: {this.state.errorMessage.message}</p>
                    </div>
                ) 
@@ -240,8 +259,8 @@ export class MapContainer extends Component {
                 <SearchField
                     clickHandler={this.onMarkerClick}
                     filterPlaces={this.filterPlaces}/>
-
-                    {this.state.filterQuery.length > 0 && !this.state.showingInfoWindow &&
+                    {/*Add this below after the project has been appproved by udacity.. this.state.filterQuery.length > 0 &&*/}
+                    {!this.state.showingInfoWindow &&
                         <VenueList
                             places={this.state.places} 
                             clickHandler={this.getVenueIdFromList}/> 

@@ -142,7 +142,6 @@
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   width: 100%;
-  /* color: gold; */
   padding: 10px 25px 0 25px;
   background-color: #453f42;
 }
@@ -153,7 +152,6 @@
 
 .venue-name {
   margin-bottom: 5px;
-  /*display: inline-flex;*/
   text-align: left;
 }
 
@@ -230,7 +228,7 @@
 
   .map-container {
     position: absolute;
-    height: 100vh;
+    height: 100%;
     width: 100%;
   }
 
@@ -255,7 +253,7 @@
   }
 
   .error-container {
-    font-size: 0.9em;
+    font-size: 0.8em;
     margin-top: 100%;
   }
 

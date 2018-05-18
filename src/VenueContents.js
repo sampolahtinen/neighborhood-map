@@ -24,16 +24,17 @@ class VenueContents extends Component {
 
         fetch(url)
             .then(response => {
-                if(response.status !== 200) {
-                    this.setState({errorOccurred: true})
+                if (!response.ok) {
+                    this.setState({ errorOccurred: true })
                 }
                 return response.json()
             })
             .then((json) => {
                 this.setState({ venueDetails: json.response })
-                localStorage.setItem('venueDetails', JSON.stringify(json.response))
                 console.log(this.state.venueDetails)
-            }).then(()=> this.setState({loading: false}))
+            })
+            .then(()=> this.setState({loading: false}))
+            .catch(error => console.log(error))
     }
 
     componentDidCatch(error) {
