@@ -21,14 +21,13 @@ export class MapContainer extends Component {
         selectedPlace: null,
         places: [],
         venueDetails: {},
-        filterQuery: 'café', //Instead of displaying empty map, café will be used as first query
+        filterQuery: '', //'café', //Instead of displaying empty map, café will be used as first query
         VenueIdFromList: '',
         mapHeight: '100%',
-        mapWidth: '75%', //change back to 100% after passing
+        mapWidth: '100%', //change back to 100% after passing
         errorOccurred: false,
         errorMessage: {},
         fourSquareError: false,
-        markerIcon: '',
         map: {}
     }
 
@@ -40,7 +39,7 @@ export class MapContainer extends Component {
                 this.setState({showingInfoWindow: false})
             }
         })
-        this.isMobile() ? this.reSizeMap('100%', '60%') : this.reSizeMap('75%', '100%')
+        this.isMobile() ? this.reSizeMap('100%', '60%') : this.reSizeMap('100%', '100%')
     }
 
     componentDidCatch(error, info) {
@@ -56,20 +55,15 @@ export class MapContainer extends Component {
     reSizeMap = (width, height) => {
         this.setState({mapWidth: width || '100%', mapHeight: height || '100%'})
     }
-
-    createMarkerIcon = (google) => {
-        var markerImage = new google.maps.MarkerImage(
-            'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-            new google.maps.Size(45,40),
-            new google.maps.Point(0, 0),
-            new google.maps.Point(25, 40),
-            new google.maps.Size(45,40));
-        return markerImage;
+    onMapLoad = () => {
+        this.isMobile() ? this.reSizeMap('100%','100%') : this.reSizeMap('100%','100%')
     }
 
     onMarkerClick = (props, marker, e) => {
         if( this.isMobile() ) {
             this.reSizeMap('100%','40%')
+        } else {
+            this.reSizeMap('75%','100%')
         }
         console.log(props)
         console.log(this.props)
@@ -85,8 +79,7 @@ export class MapContainer extends Component {
             showingInfoWindow: true,
             activeMarker: marker,
             selectedPlace: props,
-            places: filteredPlaces,
-            markerIcon: this.createMarkerIcon(this.props.google)//
+            places: filteredPlaces
         })        
     }
 
@@ -102,6 +95,9 @@ export class MapContainer extends Component {
         if(this.isMobile()) {
             this.reSizeMap('100%','60%')
             if(this.state.filterQuery.length === 0) this.reSizeMap('100%','100%')
+        } else {
+            if(this.state.filterQuery.length !== 0) this.reSizeMap('75%','100%')
+            this.reSizeMap('100%','100%')
         }
 
         this.fetchFourSquarePlaces()
@@ -114,7 +110,10 @@ export class MapContainer extends Component {
         let query =  this.state.filterQuery
         let lat = this.state.center.lat || 55.677271
         let lng = this.state.center.lng || 12.57383
-
+        if(this.state.filterQuery.length === 0 ) {
+            this.setState({places: []})
+            return;
+        }
         fetch(`https://api.foursquare.com/v2/venues/explore?ll=${lat},${lng}&radius=1000&venuePhotos=1&query="${query}"&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`)
             .then( (response) => {
                 return response.json()
@@ -132,18 +131,20 @@ export class MapContainer extends Component {
 
     // This function is passed as a prop to SearchField. When user types the typed text
     // will be passed to fetchFourSquarePlaces to search for new places
-
-    // Re-enable this after the project has been passed.
-    
-    /*filterPlaces = (query) => {
+    filterPlaces = (query) => {
         if( this.isMobile() ) {
             this.reSizeMap('100%','60%')
         } else {
             this.reSizeMap('75%','100%')
         }
         this.setState({ filterQuery: query, showingInfoWindow: false})
-        this.fetchFourSquarePlaces()
 
+        if(query.length === 0) {
+            this.setState({places: []})
+        } else {
+            this.fetchFourSquarePlaces()
+        }
+        
         //if query length is 0 resizes the map and hides the venuelist
         if(query.length === 0) {
             if( this.isMobile() ) {
@@ -151,19 +152,7 @@ export class MapContainer extends Component {
             }
             this.reSizeMap('100%','100%')
             }   
-        }*/
-
-    //Filters places and venue list based on user input
-    filterPlaces = (query) => {
-        let match = new RegExp(query, 'i')
-        let filteredPlaces = this.state.places.filter(place => match.test(place.venue.name))
-        console.log(filteredPlaces)
-        if(query.length > 0) {
-            this.setState({ places: filteredPlaces })
-        } else {
-            this.setState({places: this.state.originalPlaces})
-        } 
-    }
+        }
 
     // This func is passed as a prop to VenueList component and assigned to each list item.
     // Once a venue list item is clicked, it takes the list item name and finds the corresponding name from this.state.places
@@ -232,7 +221,7 @@ export class MapContainer extends Component {
         <div className='main-content'>
             <div className="map-container" role='application' aria-label='Google Maps' style={mapContainerStyles}>
                 <Map 
-                    onReady={this.fetchFourSquarePlaces}
+                    onReady={this.onMapLoad}
                     google={this.props.google}
                     style={{width: '100%', height: this.state.mapHeight, position: 'relative'}}
                     styles={this.props.styles}
@@ -241,7 +230,7 @@ export class MapContainer extends Component {
                         lng:  12.573833
                     }}
                     center={this.state.center}
-                    zoom={16}
+                    zoom={15}
                     onDragend={this.centerMoved}
                     onClick={this.onMapClicked}>
                         {this.state.places.map((place) =>
@@ -260,7 +249,7 @@ export class MapContainer extends Component {
                     clickHandler={this.onMarkerClick}
                     filterPlaces={this.filterPlaces}/>
                     {/*Add this below after the project has been appproved by udacity.. this.state.filterQuery.length > 0 &&*/}
-                    {!this.state.showingInfoWindow &&
+                    { this.state.filterQuery.length > 0 && !this.state.showingInfoWindow &&
                         <VenueList
                             places={this.state.places} 
                             clickHandler={this.getVenueIdFromList}/> 
